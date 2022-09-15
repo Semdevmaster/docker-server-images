@@ -1,0 +1,11 @@
+.idea
+*.log
+*.rar
+*.zip
+*.pem
+*.env
+Thumbs.db
+.DS_Store
+.publish
+.vscode
+__MACOSX
