@@ -58,3 +58,6 @@ nodejs-image:
 	--compress \
 	--no-cache \
 	./server/nodejs
+
+remove-old-images:
+	docker rmi $(docker images -qa -f 'dangling=true')

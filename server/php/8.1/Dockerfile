@@ -39,7 +39,7 @@ RUN chmod +x /usr/local/bin/install-php-extensions; \
 #    gmagick \
 #    gmp \
 #    gnupg \
-#    grpc \
+    grpc \
 #    http \
     igbinary \
     imagick \
@@ -85,16 +85,16 @@ RUN chmod +x /usr/local/bin/install-php-extensions; \
 #    solr \
 #    spx \
 #    ssh2 \
-    swoole \
+#    swoole \
 #    sysvmsg \
 #    sysvsem \
 #    sysvshm \
 #    tidy \
-#    timezonedb \
+    timezonedb \
 #    uopz \
 #    uploadprogress \
 #    uuid \
-#    xdebug \
+    xdebug \
 #    xhprof \
 #    xlswriter \
 #    xmldiff \

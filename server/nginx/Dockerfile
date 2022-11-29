@@ -1,4 +1,4 @@
-FROM alpine:3.16 AS build
+FROM alpine:3.17 AS build
 
 RUN set -x \
     && addgroup -g 101 -S nginx \
@@ -20,8 +20,8 @@ RUN apk -U upgrade \
     findutils \
     git
 
-ARG NGINX_VERSION=1.23.1
-ARG OPENSSL_VERSION=3.0.5
+ARG NGINX_VERSION=1.23.2
+ARG OPENSSL_VERSION=3.0.7
 ARG PCRE_VERSION=10.40
 ARG HEADERS_MORE_NGINX_MODULE=0.34
 RUN set -ex \
@@ -82,9 +82,9 @@ RUN set -ex \
     --add-module=../headers-more-nginx-module-${HEADERS_MORE_NGINX_MODULE} \
     && make -j$(nproc)
 
-FROM alpine:3.16
+FROM alpine:3.17
 
-ARG NGINX_VERSION=1.23.1
+ARG NGINX_VERSION=1.23.2
 COPY --from=build /src/nginx-${NGINX_VERSION}/objs/nginx /usr/sbin/
 COPY --from=build /src/nginx-${NGINX_VERSION}/conf/* /etc/nginx/
 COPY --from=build /src/nginx-${NGINX_VERSION}/html/* /usr/share/nginx/html/

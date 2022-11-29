@@ -1,4 +1,4 @@
-ARG NODEJS_VERSION=16
+ARG NODEJS_VERSION=18
 FROM node:${NODEJS_VERSION}-alpine
 
 LABEL maintainer="Semyon Kudryavtsev <arsentver@gmail.com>"

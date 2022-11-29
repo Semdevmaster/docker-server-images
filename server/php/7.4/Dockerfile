@@ -110,11 +110,3 @@ RUN chmod +x /usr/local/bin/install-php-extensions; \
 ;
 # Install Composer
 COPY --from=composer:2 /usr/bin/composer /usr/local/bin/composer
-###########################################################################
-# Mail Hog:
-###########################################################################
-#RUN curl -Lsf 'https://go.dev/dl/go1.18.3.linux-amd64.tar.gz' | tar -C '/usr/local' -xvzf -
-#COPY --from=golang:alpine /usr/local/go/ /usr/local/go/
-#ENV PATH="/usr/local/go/bin:${PATH}"
-#RUN go install github.com/mailhog/mhsendmail@latest
-#RUN cp /root/go/bin/mhsendmail /usr/bin/mhsendmail
