@@ -110,3 +110,5 @@ RUN chmod +x /usr/local/bin/install-php-extensions; \
 ;
 # Install Composer
 COPY --from=composer:2 /usr/bin/composer /usr/local/bin/composer
+# Create folders for additional ini files
+RUN mkdir /usr/local/etc/php/disabled /usr/local/etc/php/extensions

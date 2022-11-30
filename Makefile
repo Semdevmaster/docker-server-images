@@ -60,4 +60,4 @@ nodejs-image:
 	./server/nodejs
 
 remove-old-images:
-	docker rmi $(docker images -qa -f 'dangling=true')
+	docker rmi $$(docker images -qa -f 'dangling=true')
