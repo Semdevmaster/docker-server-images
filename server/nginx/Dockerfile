@@ -20,9 +20,9 @@ RUN apk -U upgrade \
     findutils \
     git
 
-ARG NGINX_VERSION=1.23.2
-ARG OPENSSL_VERSION=3.0.7
-ARG PCRE_VERSION=10.40
+ARG NGINX_VERSION=1.23.4
+ARG OPENSSL_VERSION=3.1.0
+ARG PCRE_VERSION=10.42
 ARG HEADERS_MORE_NGINX_MODULE=0.34
 RUN set -ex \
     && mkdir /src \
@@ -84,7 +84,7 @@ RUN set -ex \
 
 FROM alpine:3.17
 
-ARG NGINX_VERSION=1.23.2
+ARG NGINX_VERSION=1.23.4
 COPY --from=build /src/nginx-${NGINX_VERSION}/objs/nginx /usr/sbin/
 COPY --from=build /src/nginx-${NGINX_VERSION}/conf/* /etc/nginx/
 COPY --from=build /src/nginx-${NGINX_VERSION}/html/* /usr/share/nginx/html/

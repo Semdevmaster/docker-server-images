@@ -12,10 +12,12 @@ RUN apk -U upgrade \
 ARG TZ=Europe/Moscow
 RUN apk add --no-cache alpine-conf && setup-timezone -z ${TZ} && apk del alpine-conf
 
-COPY ./install-php-extensions /usr/local/bin/
+#COPY ./install-php-extensions /usr/local/bin/
+ADD https://github.com/mlocati/docker-php-extension-installer/releases/latest/download/install-php-extensions /usr/local/bin/
+
 
 ENV IPE_LZF_BETTERCOMPRESSION=1
-RUN chmod +x /usr/local/bin/install-php-extensions && install-php-extensions pdo_mysql pdo_pgsql zip
+RUN chmod +x /usr/local/bin/install-php-extensions && install-php-extensions pdo_mysql pdo_pgsql zip gd
 
 COPY --from=composer:2 /usr/bin/composer /usr/local/bin/composer
 

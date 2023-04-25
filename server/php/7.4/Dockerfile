@@ -10,7 +10,9 @@ RUN apk --no-cache add shadow && usermod -u 1000 www-data && groupmod -g 1000 ww
 ARG TZ=Europe/Moscow
 RUN apk add --no-cache alpine-conf && setup-timezone -z ${TZ} && apk del alpine-conf
 
-COPY ./install-php-extensions /usr/local/bin/
+#COPY ./install-php-extensions /usr/local/bin/
+#COPY --from=mlocati/php-extension-installer /usr/bin/install-php-extensions /usr/local/bin/
+ADD https://github.com/mlocati/docker-php-extension-installer/releases/latest/download/install-php-extensions /usr/local/bin/
 
 # Install PHP Extensions (Uncomment the necessary)
 ENV IPE_LZF_BETTERCOMPRESSION=1
