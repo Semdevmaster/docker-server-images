@@ -1,10 +1,12 @@
-ARG NODEJS_VERSION=18
-FROM node:${NODEJS_VERSION}-alpine
+ARG NODEJS_VERSION=22
+FROM node:${NODEJS_VERSION}-alpine3.21
 
 LABEL maintainer="Semyon Kudryavtsev <arsentver@gmail.com>"
 
-ARG TZ=Europe/Moscow
-RUN apk add --no-cache alpine-conf && setup-timezone -z ${TZ} && apk del alpine-conf
+RUN apk add --no-cache curl tzdata && \
+    npm install -g npm@latest && \
+    npm cache clean --force && \
+    rm -rf /tmp/* /var/cache/apk/*
 
 USER node
 

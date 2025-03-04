@@ -1,4 +1,4 @@
-FROM alpine:3.17 AS build
+FROM alpine:3.21 AS build
 
 RUN set -x \
     && addgroup -g 101 -S nginx \
@@ -20,10 +20,10 @@ RUN apk -U upgrade \
     findutils \
     git
 
-ARG NGINX_VERSION=1.23.4
-ARG OPENSSL_VERSION=3.1.0
-ARG PCRE_VERSION=10.42
-ARG HEADERS_MORE_NGINX_MODULE=0.34
+ARG NGINX_VERSION=1.27.4
+ARG OPENSSL_VERSION=3.4.1
+ARG PCRE_VERSION=10.45
+ARG HEADERS_MORE_NGINX_MODULE=0.38
 RUN set -ex \
     && mkdir /src \
     && cd /src \
@@ -57,6 +57,7 @@ RUN set -ex \
     --with-pcre=../pcre2-${PCRE_VERSION} \
     --with-pcre-jit \
     --with-threads \
+    --with-file-aio \
     --with-http_addition_module \
     --with-http_auth_request_module \
     --with-http_gunzip_module \
@@ -67,14 +68,24 @@ RUN set -ex \
     --with-openssl-opt=enable-ktls \
     --with-http_ssl_module \
     --with-http_v2_module \
+    --with-http_v3_module \
     --with-http_stub_status_module \
     --with-http_sub_module \
+    --with-http_random_index_module \
+    --with-http_secure_link_module \
+    --with-stream \
     --with-stream \
     --with-stream_realip_module \
     --with-stream_ssl_module \
     --with-stream_ssl_preread_module \
-    --with-cc-opt='-g -O2 -fstack-protector-strong -Wformat -Werror=format-security -Wp,-D_FORTIFY_SOURCE=2 -fPIC' \
-    --with-ld-opt='-Wl,-Bsymbolic-functions -Wl,-z,relro -Wl,-z,now -Wl,--as-needed -pie' \
+    --with-http_dav_module \
+    --with-http_flv_module \
+    --with-http_mp4_module \
+    --with-mail \
+    --with-mail_ssl_module \
+    --with-perl_modules_path=/usr/lib/perl5/vendor_perl \
+    --with-cc-opt='-Os -fstack-clash-protection -Wformat -Werror=format-security -fno-plt -g' \
+    --with-ld-opt='-Wl,--as-needed,-O1,--sort-common -Wl,-z,pack-relative-relocs' \
     --without-http_autoindex_module \
     --without-http_scgi_module \
     --without-http_uwsgi_module \
@@ -82,15 +93,12 @@ RUN set -ex \
     --add-module=../headers-more-nginx-module-${HEADERS_MORE_NGINX_MODULE} \
     && make -j$(nproc)
 
-FROM alpine:3.17
+FROM alpine:3.21
 
-ARG NGINX_VERSION=1.23.4
-COPY --from=build /src/nginx-${NGINX_VERSION}/objs/nginx /usr/sbin/
-COPY --from=build /src/nginx-${NGINX_VERSION}/conf/* /etc/nginx/
-COPY --from=build /src/nginx-${NGINX_VERSION}/html/* /usr/share/nginx/html/
-
-ARG TZ=Europe/Moscow
-RUN apk add --no-cache alpine-conf && setup-timezone -z ${TZ} && apk del alpine-conf
+ARG NGINX_VERSION=1.27.4
+COPY --from=build --link /src/nginx-${NGINX_VERSION}/objs/nginx /usr/sbin/
+COPY --from=build --link /src/nginx-${NGINX_VERSION}/conf/* /etc/nginx/
+COPY --from=build --link /src/nginx-${NGINX_VERSION}/html/* /usr/share/nginx/html/
 
 RUN set -x \
     && apk -U upgrade \
@@ -98,6 +106,7 @@ RUN set -x \
     && adduser -S -D -H -u 101 -s /sbin/nologin -G nginx -g nginx nginx \
     && adduser -S -D -H -u 82 -s /bin/sh -G www-data -g www-data www-data \
     && apk add --no-cache \
+    tzdata \
     curl \
     ca-certificates \
     gettext \
@@ -108,14 +117,14 @@ RUN set -x \
     /var/log/nginx \
     /docker-entrypoint.d \
     /etc/nginx/conf.d \
-    && rm -rf /src
+    && rm -rf /src /var/cache/apk/*
 
-COPY ./scripts/docker-entrypoint.sh /
-COPY ./scripts/20-envsubst-on-templates.sh /docker-entrypoint.d
+COPY --chmod=755 --link ./scripts/docker-entrypoint.sh /
+COPY --chmod=755 --link ./scripts/15-local-resolvers.envsh /docker-entrypoint.d
+COPY --chmod=755 --link ./scripts/20-envsubst-on-templates.sh /docker-entrypoint.d
+COPY --chmod=755 --link ./scripts/30-tune-worker-processes.sh /docker-entrypoint.d
 
-RUN chmod +x /docker-entrypoint.d/20-envsubst-on-templates.sh
-
-ENTRYPOINT ["sh","/docker-entrypoint.sh"]
+ENTRYPOINT ["/docker-entrypoint.sh"]
 
 EXPOSE 80 443
 

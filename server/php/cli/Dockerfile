@@ -1,25 +1,19 @@
-ARG PHP_VERSION=8.1
-FROM php:${PHP_VERSION}-cli-alpine
+ARG PHP_VERSION=8.4
+FROM php:${PHP_VERSION}-cli-alpine3.21
 
 LABEL maintainer="Semyon Kudryavtsev <arsentver@gmail.com>"
 
-RUN apk -U upgrade \
-    && apk add --no-cache --virtual git \
-    && mv $PHP_INI_DIR/php.ini-development $PHP_INI_DIR/php.ini \
-    && addgroup -g 1000 php-cli \
-    && adduser -u 1000 -G php-cli -s /bin/sh -D php-cli
+RUN apk -U upgrade && apk --no-cache add git shadow && \
+    mv "$PHP_INI_DIR/php.ini-production" "$PHP_INI_DIR/php.ini" && \
+    usermod -u 1000 www-data && \
+    groupmod -g 1000 www-data && \
+    apk del shadow && \
+    rm -rf /var/cache/apk/* && \
+    rm -rf /var/www/html
 
-ARG TZ=Europe/Moscow
-RUN apk add --no-cache alpine-conf && setup-timezone -z ${TZ} && apk del alpine-conf
-
-#COPY ./install-php-extensions /usr/local/bin/
-ADD https://github.com/mlocati/docker-php-extension-installer/releases/latest/download/install-php-extensions /usr/local/bin/
-
-
-ENV IPE_LZF_BETTERCOMPRESSION=1
-RUN chmod +x /usr/local/bin/install-php-extensions && install-php-extensions pdo_mysql pdo_pgsql zip gd
-
-COPY --from=composer:2 /usr/bin/composer /usr/local/bin/composer
+RUN --mount=type=bind,from=ghcr.io/mlocati/php-extension-installer:latest,source=/usr/bin/install-php-extensions,target=/usr/local/bin/install-php-extensions \
+    install-php-extensions \
+    @composer
 
 WORKDIR /var/www
 
